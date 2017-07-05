@@ -14,7 +14,7 @@ func TestProductService_CreateProduct(t *testing.T) {
 	defer c.Close()
 	s := c.ProductService()
 
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "ID",
 		SKU:         "SKU",
 		Name:        "NAME",
@@ -40,7 +40,7 @@ func TestProductService_CreateProduct_ErrProductIDRequired(t *testing.T) {
 	c := MustOpenClient()
 	defer c.Close()
 
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "",
 		SKU:         "SKU",
 		Name:        "NAME",
@@ -50,7 +50,7 @@ func TestProductService_CreateProduct_ErrProductIDRequired(t *testing.T) {
 		ModTime:     time.Now().UTC(),
 	}
 
-	if err := c.ProductService().CreateProduct(&product); err != fruitvendor.ErrProductIDRequired {
+	if err := c.ProductService().CreateProduct(&product); err != fruit.ErrProductIDRequired {
 		t.Fatalf("expected error with without id: %+v", product)
 	}
 }
@@ -59,11 +59,11 @@ func TestProductService_CreateProduct_ErrProductExists(t *testing.T) {
 	c := MustOpenClient()
 	defer c.Close()
 
-	if err := c.ProductService().CreateProduct(&fruitvendor.Product{ID: "X"}); err != nil {
+	if err := c.ProductService().CreateProduct(&fruit.Product{ID: "X"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := c.ProductService().CreateProduct(&fruitvendor.Product{ID: "X"}); err != fruitvendor.ErrProductExists {
+	if err := c.ProductService().CreateProduct(&fruit.Product{ID: "X"}); err != fruit.ErrProductExists {
 		t.Fatal(errors.New("expected error when creating same product"))
 	}
 }
@@ -74,7 +74,7 @@ func TestProductService_UpdateProduct(t *testing.T) {
 	s := c.ProductService()
 
 	// Create new product.
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "XXX",
 		SKU:         "OLD_SKU",
 		Name:        "NAME",
@@ -109,7 +109,7 @@ func TestProductService_UpdateProduct_ErrProductNotFound(t *testing.T) {
 	s := c.ProductService()
 
 	// Create new product.
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "XXX",
 		SKU:         "OLD_SKU",
 		Name:        "NAME",
@@ -120,7 +120,7 @@ func TestProductService_UpdateProduct_ErrProductNotFound(t *testing.T) {
 	}
 
 	// Update product
-	if err := s.UpdateProduct("XXX", &product); err != fruitvendor.ErrProductNotFound {
+	if err := s.UpdateProduct("XXX", &product); err != fruit.ErrProductNotFound {
 		t.Fatal(err)
 	}
 }
@@ -129,7 +129,7 @@ func TestProductService_Update_ErrProductDoesNotExist(t *testing.T) {
 	c := MustOpenClient()
 	defer c.Close()
 
-	if err := c.ProductService().UpdateProduct("XXX", &fruitvendor.Product{ID: "X"}); err == nil {
+	if err := c.ProductService().UpdateProduct("XXX", &fruit.Product{ID: "X"}); err == nil {
 		t.Fatal("product should not update non-existing product")
 	}
 }
@@ -140,7 +140,7 @@ func TestProductService_Delete(t *testing.T) {
 	s := c.ProductService()
 
 	// Create new product.
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "XXX",
 		SKU:         "OLD_SKU",
 		Name:        "NAME",
@@ -171,7 +171,7 @@ func TestProductService_Delete_ErrProductNotFound(t *testing.T) {
 	s := c.ProductService()
 
 	// Create new product.
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "XXX",
 		SKU:         "OLD_SKU",
 		Name:        "NAME",
@@ -182,7 +182,7 @@ func TestProductService_Delete_ErrProductNotFound(t *testing.T) {
 	}
 
 	// Delete product.
-	if err := s.DeleteProduct(product.ID, product.Token); err != fruitvendor.ErrProductNotFound {
+	if err := s.DeleteProduct(product.ID, product.Token); err != fruit.ErrProductNotFound {
 		t.Fatalf("expected error with non-existing product: %+v", product)
 	}
 }
@@ -193,7 +193,7 @@ func TestProductService_Products(t *testing.T) {
 	s := c.ProductService()
 
 	// Create new product.
-	product := fruitvendor.Product{
+	product := fruit.Product{
 		ID:          "XXX",
 		SKU:         "OLD_SKU",
 		Name:        "NAME",
@@ -208,7 +208,7 @@ func TestProductService_Products(t *testing.T) {
 	}
 
 	// Create second product.
-	product = fruitvendor.Product{
+	product = fruit.Product{
 		ID:          "YYY",
 		SKU:         "OLD_SKU",
 		Name:        "NAME",

@@ -9,7 +9,7 @@ import (
 	"github.com/notjrbauer/fruitvendor"
 )
 
-const ErrInvalidJSON = fruitvendor.Error("invalid json")
+const ErrInvalidJSON = fruit.Error("invalid json")
 
 // Handler is a collection of all the service handlers.
 
@@ -31,7 +31,7 @@ func Error(w http.ResponseWriter, err error, code int, logger *log.Logger) {
 
 	// Hide error from client if it is internal.
 	if code == http.StatusInternalServerError {
-		err = fruitvendor.ErrInternal
+		err = fruit.ErrInternal
 	}
 
 	// Write generic response.

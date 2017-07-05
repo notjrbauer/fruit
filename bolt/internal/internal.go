@@ -6,10 +6,10 @@ import (
 	"github.com/notjrbauer/fruitvendor"
 )
 
-func MarshalProduct(p *fruitvendor.Product) ([]byte, error) {
+func MarshalProduct(p *fruit.Product) ([]byte, error) {
 	return json.Marshal(p)
 }
 
-func UnmarshalProduct(b []byte, p *fruitvendor.Product) error {
+func UnmarshalProduct(b []byte, p *fruit.Product) error {
 	return json.Unmarshal(b, p)
 }

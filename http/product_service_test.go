@@ -38,15 +38,15 @@ func testProductService_Product(t *testing.T) {
 	defer s.Close()
 
 	// Mock service.
-	s.Handler.ProductHandler.ProductService.ProductFn = func(id fruitvendor.ProductID) (*fruitvendor.Product, error) {
-		return &fruitvendor.Product{ID: "A"}, nil
+	s.Handler.ProductHandler.ProductService.ProductFn = func(id fruit.ProductID) (*fruit.Product, error) {
+		return &fruit.Product{ID: "A"}, nil
 	}
 
 	// Retrieve product.
-	p, err := c.ProductService().Product(fruitvendor.ProductID("A"))
+	p, err := c.ProductService().Product(fruit.ProductID("A"))
 	if err != nil {
 		t.Fatal(err)
-	} else if !reflect.DeepEqual(p, &fruitvendor.Product{ID: "A"}) {
+	} else if !reflect.DeepEqual(p, &fruit.Product{ID: "A"}) {
 		t.Fatalf("unexpected product: %+v", p)
 	}
 }
@@ -56,12 +56,12 @@ func testProductService_Product_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// Mock service.
-	s.Handler.ProductHandler.ProductService.ProductFn = func(id fruitvendor.ProductID) (*fruitvendor.Product, error) {
+	s.Handler.ProductHandler.ProductService.ProductFn = func(id fruit.ProductID) (*fruit.Product, error) {
 		return nil, nil
 	}
 
 	// Retrieve product.
-	if d, err := c.ProductService().Product(fruitvendor.ProductID("NO SUCH PRODUCT")); err != nil {
+	if d, err := c.ProductService().Product(fruit.ProductID("NO SUCH PRODUCT")); err != nil {
 		t.Fatal(err)
 	} else if d != nil {
 		t.Fatal("unexpected nil product")
@@ -73,12 +73,12 @@ func testProductService_Product_ErrInternal(t *testing.T) {
 	defer s.Close()
 
 	// Mock service.
-	s.Handler.ProductHandler.ProductService.ProductFn = func(id fruitvendor.ProductID) (*fruitvendor.Product, error) {
+	s.Handler.ProductHandler.ProductService.ProductFn = func(id fruit.ProductID) (*fruit.Product, error) {
 		return nil, errors.New("marker")
 	}
 
 	// Retrieve product.
-	if p, err := c.ProductService().Product(fruitvendor.ProductID("XXX")); err != fruitvendor.ErrInternal {
+	if p, err := c.ProductService().Product(fruit.ProductID("XXX")); err != fruit.ErrInternal {
 		t.Fatal(err)
 	} else if p != nil {
 		t.Fatal("unexpected nil product")
@@ -96,9 +96,9 @@ func testProductService_Products(t *testing.T) {
 	defer s.Close()
 
 	// Mock service.
-	s.Handler.ProductHandler.ProductService.ProductsFn = func() ([]*fruitvendor.Product, error) {
-		var products []*fruitvendor.Product
-		products = append(products, &fruitvendor.Product{ID: "A"}, &fruitvendor.Product{ID: "B"})
+	s.Handler.ProductHandler.ProductService.ProductsFn = func() ([]*fruit.Product, error) {
+		var products []*fruit.Product
+		products = append(products, &fruit.Product{ID: "A"}, &fruit.Product{ID: "B"})
 
 		return products, nil
 	}
@@ -115,7 +115,7 @@ func testProductService_Products_NotFound(t *testing.T) {
 	defer s.Close()
 
 	// Mock service.
-	s.Handler.ProductHandler.ProductService.ProductsFn = func() ([]*fruitvendor.Product, error) {
+	s.Handler.ProductHandler.ProductService.ProductsFn = func() ([]*fruit.Product, error) {
 		return nil, nil
 	}
 
@@ -132,12 +132,12 @@ func testProductService_Products_ErrInternal(t *testing.T) {
 	defer s.Close()
 
 	// Mock service.
-	s.Handler.ProductHandler.ProductService.ProductsFn = func() ([]*fruitvendor.Product, error) {
+	s.Handler.ProductHandler.ProductService.ProductsFn = func() ([]*fruit.Product, error) {
 		return nil, errors.New("marker")
 	}
 
 	// Retrieve product.
-	if p, err := c.ProductService().Products(); err != fruitvendor.ErrInternal {
+	if p, err := c.ProductService().Products(); err != fruit.ErrInternal {
 		t.Fatal(err)
 	} else if p != nil {
 		t.Fatal("unexpected nil product")
@@ -158,8 +158,8 @@ func testProductService_CreateProduct(t *testing.T) {
 	defer s.Close()
 
 	// Mock server.
-	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruitvendor.Product) error {
-		if !reflect.DeepEqual(p, &fruitvendor.Product{ID: "XXX", Token: "TOKEN"}) {
+	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruit.Product) error {
+		if !reflect.DeepEqual(p, &fruit.Product{ID: "XXX", Token: "TOKEN"}) {
 			t.Fatalf("unexpected product: %v", p)
 		}
 
@@ -169,13 +169,13 @@ func testProductService_CreateProduct(t *testing.T) {
 		return nil
 	}
 
-	p := &fruitvendor.Product{ID: "XXX", Token: "TOKEN"}
+	p := &fruit.Product{ID: "XXX", Token: "TOKEN"}
 
 	// Create product.
 	err := c.ProductService().CreateProduct(p)
 	if err != nil {
 		t.Fatal(err)
-	} else if !reflect.DeepEqual(p, &fruitvendor.Product{ID: "XXX", Token: "TOKEN", ModTime: Now}) {
+	} else if !reflect.DeepEqual(p, &fruit.Product{ID: "XXX", Token: "TOKEN", ModTime: Now}) {
 		t.Fatalf("unexpected product: %v", p)
 	}
 }
@@ -184,11 +184,11 @@ func testProductService_CreateProduct_ErrProductRequired(t *testing.T) {
 	s, c := MustOpenServerClient()
 	defer s.Close()
 
-	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruitvendor.Product) error {
-		return fruitvendor.ErrProductRequired
+	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruit.Product) error {
+		return fruit.ErrProductRequired
 	}
 
-	if err := c.ProductService().CreateProduct(nil); err != fruitvendor.ErrProductRequired {
+	if err := c.ProductService().CreateProduct(nil); err != fruit.ErrProductRequired {
 		t.Fatal(err)
 	}
 }
@@ -197,11 +197,11 @@ func testProductService_CreateProduct_ErrProductExists(t *testing.T) {
 	s, c := MustOpenServerClient()
 	defer s.Close()
 
-	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruitvendor.Product) error {
-		return fruitvendor.ErrProductExists
+	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruit.Product) error {
+		return fruit.ErrProductExists
 	}
 
-	if err := c.ProductService().CreateProduct(&fruitvendor.Product{ID: "XXX"}); err != fruitvendor.ErrProductExists {
+	if err := c.ProductService().CreateProduct(&fruit.Product{ID: "XXX"}); err != fruit.ErrProductExists {
 		t.Fatal(err)
 	}
 }
@@ -210,11 +210,11 @@ func testProductService_CreateProduct_ErrProductIDRequired(t *testing.T) {
 	s, c := MustOpenServerClient()
 	defer s.Close()
 
-	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruitvendor.Product) error {
-		return fruitvendor.ErrProductIDRequired
+	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruit.Product) error {
+		return fruit.ErrProductIDRequired
 	}
 
-	if err := c.ProductService().CreateProduct(&fruitvendor.Product{}); err != fruitvendor.ErrProductIDRequired {
+	if err := c.ProductService().CreateProduct(&fruit.Product{}); err != fruit.ErrProductIDRequired {
 		t.Fatal(err)
 	}
 }
@@ -222,11 +222,11 @@ func testProductService_CreateProduct_ErrInternal(t *testing.T) {
 	s, c := MustOpenServerClient()
 	defer s.Close()
 
-	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruitvendor.Product) error {
+	s.Handler.ProductHandler.ProductService.CreateProductFn = func(p *fruit.Product) error {
 		return errors.New("marker")
 	}
 
-	if err := c.ProductService().CreateProduct(&fruitvendor.Product{}); err != fruitvendor.ErrInternal {
+	if err := c.ProductService().CreateProduct(&fruit.Product{}); err != fruit.ErrInternal {
 		t.Fatal(err)
 	}
 }
@@ -242,7 +242,7 @@ func testProductService_UpdateProduct(t *testing.T) {
 	defer s.Close()
 
 	// Mock server.
-	s.Handler.ProductHandler.ProductService.UpdateProductFn = func(id fruitvendor.ProductID, p *fruitvendor.Product) error {
+	s.Handler.ProductHandler.ProductService.UpdateProductFn = func(id fruit.ProductID, p *fruit.Product) error {
 		// Update mod time.
 		p.ModTime = Now
 		p.ID = id
@@ -250,10 +250,10 @@ func testProductService_UpdateProduct(t *testing.T) {
 		return nil
 	}
 
-	p := &fruitvendor.Product{Token: "TOKEN"}
+	p := &fruit.Product{Token: "TOKEN"}
 
 	// Update product.
-	err := c.ProductService().UpdateProduct(fruitvendor.ProductID("XXX"), p)
+	err := c.ProductService().UpdateProduct(fruit.ProductID("XXX"), p)
 	if err != nil {
 		t.Fatal(err)
 	} else if p.ID != "XXX" {

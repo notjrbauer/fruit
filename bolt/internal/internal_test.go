@@ -10,7 +10,7 @@ import (
 )
 
 func TestMarshalProduct(t *testing.T) {
-	v := fruitvendor.Product{
+	v := fruit.Product{
 		ID:          "ID",
 		SKU:         "SKU",
 		Name:        "NAME",
@@ -20,7 +20,7 @@ func TestMarshalProduct(t *testing.T) {
 		ModTime:     time.Now().UTC(),
 	}
 
-	var other fruitvendor.Product
+	var other fruit.Product
 	if buf, err := internal.MarshalProduct(&v); err != nil {
 		t.Fatal(err)
 	} else if err := internal.UnmarshalProduct(buf, &other); err != nil {

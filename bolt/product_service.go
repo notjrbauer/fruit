@@ -11,7 +11,7 @@ type ProductService struct {
 }
 
 // Product returns a product by ID.
-func (s *ProductService) Product(id fruitvendor.ProductID) (*fruitvendor.Product, error) {
+func (s *ProductService) Product(id fruit.ProductID) (*fruit.Product, error) {
 	// Start read-only transaction.
 	tx, err := s.client.db.Begin(false)
 	if err != nil {
@@ -20,7 +20,7 @@ func (s *ProductService) Product(id fruitvendor.ProductID) (*fruitvendor.Product
 	defer tx.Rollback()
 
 	// Find and unmarshal product.
-	var p fruitvendor.Product
+	var p fruit.Product
 	products := s.client.db.From("Products")
 
 	if err := products.One("ID", id, &p); err != nil {
@@ -32,8 +32,8 @@ func (s *ProductService) Product(id fruitvendor.ProductID) (*fruitvendor.Product
 	return &p, nil
 }
 
-func (s *ProductService) Products() ([]*fruitvendor.Product, error) {
-	var products []*fruitvendor.Product
+func (s *ProductService) Products() ([]*fruit.Product, error) {
+	var products []*fruit.Product
 	if err := s.client.db.From("Products").All(&products); err != nil {
 		return nil, err
 	}
@@ -41,10 +41,10 @@ func (s *ProductService) Products() ([]*fruitvendor.Product, error) {
 }
 
 // CreateProduct creates a new product.
-func (s *ProductService) CreateProduct(p *fruitvendor.Product) error {
+func (s *ProductService) CreateProduct(p *fruit.Product) error {
 	// Require id
 	if p.ID == "" {
-		return fruitvendor.ErrProductIDRequired
+		return fruit.ErrProductIDRequired
 	}
 
 	bucket := s.client.db.From("Products")
@@ -57,11 +57,11 @@ func (s *ProductService) CreateProduct(p *fruitvendor.Product) error {
 
 	// Verify product doesn't already exist.
 
-	var product fruitvendor.Product
+	var product fruit.Product
 	tx.One("ID", p.ID, &product)
 
 	if product.ID != "" {
-		return fruitvendor.ErrProductExists
+		return fruit.ErrProductExists
 	}
 
 	// Update modified time.
@@ -75,7 +75,7 @@ func (s *ProductService) CreateProduct(p *fruitvendor.Product) error {
 }
 
 // UpdateProduct updates an existing product.
-func (s *ProductService) UpdateProduct(id fruitvendor.ProductID, p *fruitvendor.Product) error {
+func (s *ProductService) UpdateProduct(id fruit.ProductID, p *fruit.Product) error {
 	// Start read-write transaction.
 
 	tx, err := s.client.db.From("Products").Begin(true)
@@ -85,13 +85,13 @@ func (s *ProductService) UpdateProduct(id fruitvendor.ProductID, p *fruitvendor.
 	defer tx.Rollback()
 
 	// Find record.
-	var product fruitvendor.Product
+	var product fruit.Product
 	if err := tx.One("ID", p.ID, &product); err != nil {
-		return fruitvendor.ErrProductNotFound
+		return fruit.ErrProductNotFound
 	}
 
 	// Apply changes.
-	var d fruitvendor.Product
+	var d fruit.Product
 	d.ID = p.ID
 	d.Color = p.Color
 	d.Description = p.Description
@@ -108,7 +108,7 @@ func (s *ProductService) UpdateProduct(id fruitvendor.ProductID, p *fruitvendor.
 }
 
 // DeleteProduct removes an existing product.
-func (s *ProductService) DeleteProduct(id fruitvendor.ProductID, token string) error {
+func (s *ProductService) DeleteProduct(id fruit.ProductID, token string) error {
 	// Start the read-write transaction.
 	tx, err := s.client.db.From("Products").Begin(true)
 	if err != nil {
@@ -117,9 +117,9 @@ func (s *ProductService) DeleteProduct(id fruitvendor.ProductID, token string) e
 	defer tx.Rollback()
 
 	// Find record.
-	var product fruitvendor.Product
+	var product fruit.Product
 	if err := tx.One("ID", id, &product); err != nil {
-		return fruitvendor.ErrProductNotFound
+		return fruit.ErrProductNotFound
 	}
 
 	if err := tx.DeleteStruct(&product); err != nil {

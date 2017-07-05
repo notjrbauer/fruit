@@ -1,4 +1,4 @@
-package fruitvendor
+package fruit
 
 import "time"
 

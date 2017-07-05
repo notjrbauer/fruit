@@ -16,7 +16,7 @@ type Client struct {
 
 func NewClient() *Client {
 
-	f, err := ioutil.TempFile("", "fruitvendor-bolt-client-")
+	f, err := ioutil.TempFile("", "fruit-bolt-client-")
 	if err != nil {
 		panic(err)
 	}

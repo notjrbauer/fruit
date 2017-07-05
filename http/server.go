@@ -73,6 +73,6 @@ func NewClient() *Client {
 	return c
 }
 
-func (c *Client) ProductService() fruitvendor.ProductService {
+func (c *Client) ProductService() fruit.ProductService {
 	return &c.productService
 }

@@ -46,6 +46,6 @@ func (c *Client) Close() error {
 	return nil
 }
 
-func (c *Client) ProductService() fruitvendor.ProductService {
+func (c *Client) ProductService() fruit.ProductService {
 	return &c.productService
 }
