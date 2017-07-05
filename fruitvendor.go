@@ -1,4 +1,4 @@
-package caps
+package fruitvendor
 
 import "time"
 

@@ -1,4 +1,4 @@
-package caps
+package fruitvendor
 
 // General errors.
 const (
@@ -14,7 +14,7 @@ const (
 	ErrProductIDRequired = Error("product id required")
 )
 
-// Error represents a caps error.
+// Error represents a fruitvendor error.
 type Error string
 
 // Error returns the error message.

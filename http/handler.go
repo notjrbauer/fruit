@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/notjrbauer/caps"
+	"github.com/notjrbauer/fruitvendor"
 )
 
-const ErrInvalidJSON = caps.Error("invalid json")
+const ErrInvalidJSON = fruitvendor.Error("invalid json")
 
 // Handler is a collection of all the service handlers.
 
@@ -31,7 +31,7 @@ func Error(w http.ResponseWriter, err error, code int, logger *log.Logger) {
 
 	// Hide error from client if it is internal.
 	if code == http.StatusInternalServerError {
-		err = caps.ErrInternal
+		err = fruitvendor.ErrInternal
 	}
 
 	// Write generic response.

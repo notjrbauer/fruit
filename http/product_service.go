@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/notjrbauer/caps"
+	"github.com/notjrbauer/fruitvendor"
 )
 
 type ProductHandler struct {
 	*httprouter.Router
 
-	ProductService caps.ProductService
+	ProductService fruitvendor.ProductService
 
 	Logger *log.Logger
 }
@@ -38,7 +38,7 @@ func NewProductHandler() *ProductHandler {
 func (h *ProductHandler) handleGetProduct(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	id := ps.ByName("id")
 
-	p, err := h.ProductService.Product(caps.ProductID(id))
+	p, err := h.ProductService.Product(fruitvendor.ProductID(id))
 	if err != nil {
 		Error(w, err, http.StatusInternalServerError, h.Logger)
 	} else if p == nil {
@@ -49,7 +49,7 @@ func (h *ProductHandler) handleGetProduct(w http.ResponseWriter, r *http.Request
 }
 
 type getProductResponse struct {
-	Product *caps.Product `json:"product,omitempty"`
+	Product *fruitvendor.Product `json:"product,omitempty"`
 	Err     string        `json:"err,omitempty"`
 }
 
@@ -68,7 +68,7 @@ func (h *ProductHandler) handleGetProducts(w http.ResponseWriter, r *http.Reques
 }
 
 type getProductsResponse struct {
-	Products []*caps.Product `json:"products,omitempty"`
+	Products []*fruitvendor.Product `json:"products,omitempty"`
 	Err      string          `json:"err,omitempty"`
 }
 
@@ -89,9 +89,9 @@ func (h *ProductHandler) handlePostProduct(w http.ResponseWriter, r *http.Reques
 	switch err := h.ProductService.CreateProduct(p); err {
 	case nil:
 		encodeJSON(w, &postProductRequest{Product: p}, h.Logger)
-	case caps.ErrProductRequired, caps.ErrProductIDRequired:
+	case fruitvendor.ErrProductRequired, fruitvendor.ErrProductIDRequired:
 		Error(w, err, http.StatusBadRequest, h.Logger)
-	case caps.ErrProductExists:
+	case fruitvendor.ErrProductExists:
 		Error(w, err, http.StatusConflict, h.Logger)
 	default:
 		Error(w, err, http.StatusInternalServerError, h.Logger)
@@ -99,21 +99,21 @@ func (h *ProductHandler) handlePostProduct(w http.ResponseWriter, r *http.Reques
 }
 
 type postProductRequest struct {
-	Product *caps.Product `json:"product,omitempty"`
+	Product *fruitvendor.Product `json:"product,omitempty"`
 	Token   string        `json:"token,omitempty"`
 }
 
 type postProductResponse struct {
-	Product *caps.Product `json:"product,omitempty"`
+	Product *fruitvendor.Product `json:"product,omitempty"`
 	Err     string        `json:"err,omitempty"`
 }
 
-// ProductService represents an HTTP implementation of caps.ProductService.
+// ProductService represents an HTTP implementation of fruitvendor.ProductService.
 type ProductService struct {
 	URL *url.URL
 }
 
-func (s *ProductService) Product(id caps.ProductID) (*caps.Product, error) {
+func (s *ProductService) Product(id fruitvendor.ProductID) (*fruitvendor.Product, error) {
 	u := *s.URL
 	u.Path = "/api/products/" + url.QueryEscape(string(id))
 
@@ -130,12 +130,12 @@ func (s *ProductService) Product(id caps.ProductID) (*caps.Product, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
 		return nil, err
 	} else if respBody.Err != "" {
-		return nil, caps.Error(respBody.Err)
+		return nil, fruitvendor.Error(respBody.Err)
 	}
 	return respBody.Product, nil
 }
 
-func (s *ProductService) Products() ([]*caps.Product, error) {
+func (s *ProductService) Products() ([]*fruitvendor.Product, error) {
 	u := *s.URL
 	u.Path = "/api/products"
 
@@ -152,15 +152,15 @@ func (s *ProductService) Products() ([]*caps.Product, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
 		return nil, err
 	} else if respBody.Err != "" {
-		return nil, caps.Error(respBody.Err)
+		return nil, fruitvendor.Error(respBody.Err)
 	}
 	return respBody.Products, nil
 }
 
-func (s *ProductService) CreateProduct(p *caps.Product) error {
+func (s *ProductService) CreateProduct(p *fruitvendor.Product) error {
 	// Validate arguments.
 	if p == nil {
-		return caps.ErrProductRequired
+		return fruitvendor.ErrProductRequired
 	}
 
 	u := *s.URL
@@ -187,7 +187,7 @@ func (s *ProductService) CreateProduct(p *caps.Product) error {
 	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
 		return err
 	} else if respBody.Err != "" {
-		return caps.Error(respBody.Err)
+		return fruitvendor.Error(respBody.Err)
 	}
 
 	// Copy returned product.
@@ -197,10 +197,10 @@ func (s *ProductService) CreateProduct(p *caps.Product) error {
 	return err
 }
 
-func (s *ProductService) UpdateProduct(id caps.ProductID, p *caps.Product) error {
+func (s *ProductService) UpdateProduct(id fruitvendor.ProductID, p *fruitvendor.Product) error {
 	panic("not implemented")
 }
 
-func (s *ProductService) DeleteProduct(id caps.ProductID, token string) error {
+func (s *ProductService) DeleteProduct(id fruitvendor.ProductID, token string) error {
 	panic("not implemented")
 }

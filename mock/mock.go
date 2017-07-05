@@ -1,47 +1,47 @@
 package mock
 
 import (
-	"github.com/notjrbauer/caps"
+	"github.com/notjrbauer/fruitvendor"
 )
 
 type ProductService struct {
-	ProductFn      func(id caps.ProductID) (*caps.Product, error)
+	ProductFn      func(id fruitvendor.ProductID) (*fruitvendor.Product, error)
 	ProductInvoked bool
 
-	ProductsFn      func() ([]*caps.Product, error)
+	ProductsFn      func() ([]*fruitvendor.Product, error)
 	ProductsInvoked bool
 
-	CreateProductFn      func(p *caps.Product) error
+	CreateProductFn      func(p *fruitvendor.Product) error
 	CreateProductInvoked bool
 
-	UpdateProductFn      func(id caps.ProductID, p *caps.Product) error
+	UpdateProductFn      func(id fruitvendor.ProductID, p *fruitvendor.Product) error
 	UpdateProductInvoked bool
 
-	DeleteProductFn      func(id caps.ProductID, token string) error
+	DeleteProductFn      func(id fruitvendor.ProductID, token string) error
 	DeleteProductInvoked bool
 }
 
-func (s *ProductService) Product(id caps.ProductID) (*caps.Product, error) {
+func (s *ProductService) Product(id fruitvendor.ProductID) (*fruitvendor.Product, error) {
 	s.ProductInvoked = true
 	return s.ProductFn(id)
 }
 
-func (s *ProductService) Products() ([]*caps.Product, error) {
+func (s *ProductService) Products() ([]*fruitvendor.Product, error) {
 	s.ProductsInvoked = true
 	return s.ProductsFn()
 }
 
-func (s *ProductService) CreateProduct(p *caps.Product) error {
+func (s *ProductService) CreateProduct(p *fruitvendor.Product) error {
 	s.CreateProductInvoked = true
 	return s.CreateProductFn(p)
 }
 
-func (s *ProductService) UpdateProduct(id caps.ProductID, p *caps.Product) error {
+func (s *ProductService) UpdateProduct(id fruitvendor.ProductID, p *fruitvendor.Product) error {
 	s.UpdateProductInvoked = true
 	return s.UpdateProductFn(id, p)
 }
 
-func (s *ProductService) DeleteProduct(id caps.ProductID, token string) error {
+func (s *ProductService) DeleteProduct(id fruitvendor.ProductID, token string) error {
 	s.DeleteProductInvoked = true
 	return s.DeleteProductFn(id, token)
 }

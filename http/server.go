@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/notjrbauer/caps"
+	"github.com/notjrbauer/fruitvendor"
 )
 
 // DefaultAddr is the default bind address
@@ -73,6 +73,6 @@ func NewClient() *Client {
 	return c
 }
 
-func (c *Client) ProductService() caps.ProductService {
+func (c *Client) ProductService() fruitvendor.ProductService {
 	return &c.productService
 }
