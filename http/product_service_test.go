@@ -148,9 +148,9 @@ func TestProductService_Create(t *testing.T) {
 	t.Run("OK", testProductService_CreateProduct)
 	t.Run("ErrProductRequired", testProductService_CreateProduct_ErrProductRequired)
 	t.Run("ErrProductExists", testProductService_CreateProduct_ErrProductExists)
-	t.Run("ErrProductExists", testProductService_CreateProduct_ErrProductIDRequired)
+	t.Run("ErrProductIDRequired", testProductService_CreateProduct_ErrProductIDRequired)
+	t.Run("ErrInternal", testProductService_Products_ErrInternal)
 	//t.Run("NotFound", testProductService_Products_NotFound)
-	//t.Run("ErrInternal", testProductService_Products_ErrInternal)
 }
 
 func testProductService_CreateProduct(t *testing.T) {
@@ -228,5 +228,35 @@ func testProductService_CreateProduct_ErrInternal(t *testing.T) {
 
 	if err := c.ProductService().CreateProduct(&fruitvendor.Product{}); err != fruitvendor.ErrInternal {
 		t.Fatal(err)
+	}
+}
+
+func TestProductService_UpdateProduct(t *testing.T) {
+	t.Run("OK", testProductService_UpdateProduct)
+	//t.Run("NotFound", testProductService_UpdateProduct_NotFound)
+	//t.Run("ErrInternal", testProductService_UpdateProduct_ErrInternal)
+}
+
+func testProductService_UpdateProduct(t *testing.T) {
+	s, c := MustOpenServerClient()
+	defer s.Close()
+
+	// Mock server.
+	s.Handler.ProductHandler.ProductService.UpdateProductFn = func(id fruitvendor.ProductID, p *fruitvendor.Product) error {
+		// Update mod time.
+		p.ModTime = Now
+		p.ID = id
+
+		return nil
+	}
+
+	p := &fruitvendor.Product{Token: "TOKEN"}
+
+	// Update product.
+	err := c.ProductService().UpdateProduct(fruitvendor.ProductID("XXX"), p)
+	if err != nil {
+		t.Fatal(err)
+	} else if p.ID != "XXX" {
+		t.Fatalf("product failed to update: %v", p)
 	}
 }

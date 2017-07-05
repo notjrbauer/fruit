@@ -29,8 +29,9 @@ func NewProductHandler() *ProductHandler {
 	}
 
 	h.GET("/api/products", h.handleGetProducts)
-	h.GET("/api/products/:id", h.handleGetProduct)
 	h.POST("/api/products", h.handlePostProduct)
+	h.PUT("/api/products", h.handlePutProduct)
+	h.GET("/api/products/:id", h.handleGetProduct)
 	return h
 }
 
@@ -50,7 +51,7 @@ func (h *ProductHandler) handleGetProduct(w http.ResponseWriter, r *http.Request
 
 type getProductResponse struct {
 	Product *fruitvendor.Product `json:"product,omitempty"`
-	Err     string        `json:"err,omitempty"`
+	Err     string               `json:"err,omitempty"`
 }
 
 // handleGetProducts handles requests to fetch a series of products
@@ -69,10 +70,10 @@ func (h *ProductHandler) handleGetProducts(w http.ResponseWriter, r *http.Reques
 
 type getProductsResponse struct {
 	Products []*fruitvendor.Product `json:"products,omitempty"`
-	Err      string          `json:"err,omitempty"`
+	Err      string                 `json:"err,omitempty"`
 }
 
-// handlePostProduct handles requests to create a new product
+// handlePostProduct handles requests to create a new product.
 func (h *ProductHandler) handlePostProduct(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Decode request.
 	var req postProductRequest
@@ -100,12 +101,48 @@ func (h *ProductHandler) handlePostProduct(w http.ResponseWriter, r *http.Reques
 
 type postProductRequest struct {
 	Product *fruitvendor.Product `json:"product,omitempty"`
-	Token   string        `json:"token,omitempty"`
+	Token   string               `json:"token,omitempty"`
 }
 
 type postProductResponse struct {
 	Product *fruitvendor.Product `json:"product,omitempty"`
-	Err     string        `json:"err,omitempty"`
+	Err     string               `json:"err,omitempty"`
+}
+
+// handlePutProduct handles requests to update a product.
+func (h *ProductHandler) handlePutProduct(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	// Decode request.
+	var req putProductRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		Error(w, ErrInvalidJSON, http.StatusBadRequest, h.Logger)
+		return
+	}
+
+	p := req.Product
+	p.ID = req.ID
+	p.ModTime = time.Time{}
+
+	// Create product.
+	switch err := h.ProductService.UpdateProduct(p.ID, p); err {
+	case nil:
+		encodeJSON(w, &putProductResponse{Product: p}, h.Logger)
+	case fruitvendor.ErrProductRequired, fruitvendor.ErrProductIDRequired:
+		Error(w, err, http.StatusBadRequest, h.Logger)
+	case fruitvendor.ErrProductExists:
+		Error(w, err, http.StatusConflict, h.Logger)
+	default:
+		Error(w, err, http.StatusInternalServerError, h.Logger)
+	}
+}
+
+type putProductRequest struct {
+	Product *fruitvendor.Product  `json:"product,omitempty"`
+	ID      fruitvendor.ProductID `json:"id,omitempty"`
+}
+
+type putProductResponse struct {
+	Product *fruitvendor.Product `json:"product,omitempty"`
+	Err     string               `json:"err,omitempty"`
 }
 
 // ProductService represents an HTTP implementation of fruitvendor.ProductService.
@@ -198,7 +235,45 @@ func (s *ProductService) CreateProduct(p *fruitvendor.Product) error {
 }
 
 func (s *ProductService) UpdateProduct(id fruitvendor.ProductID, p *fruitvendor.Product) error {
-	panic("not implemented")
+	// Validate arguments.
+	if id == "" {
+		return fruitvendor.ErrProductIDRequired
+	}
+
+	u := *s.URL
+	u.Path = "/api/products"
+
+	reqBody, err := json.Marshal(putProductRequest{Product: p, ID: id})
+	if err != nil {
+		return err
+	}
+
+	// Create request.
+	req, err := http.NewRequest(http.MethodPut, u.String(), bytes.NewBuffer(reqBody))
+	if err != nil {
+		return err
+	}
+
+	// Execute request.
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Decode response into JSON.
+	var respBody putProductResponse
+	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+		return err
+	} else if respBody.Err != "" {
+		return fruitvendor.Error(respBody.Err)
+	}
+
+	// Copy returned product.
+	// TODO: Remove ability to generate ID
+	*p = *respBody.Product
+	p.ID = id
+	return nil
 }
 
 func (s *ProductService) DeleteProduct(id fruitvendor.ProductID, token string) error {
