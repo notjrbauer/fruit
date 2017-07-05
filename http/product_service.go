@@ -31,6 +31,8 @@ func NewProductHandler() *ProductHandler {
 	h.GET("/api/products", h.handleGetProducts)
 	h.POST("/api/products", h.handlePostProduct)
 	h.PUT("/api/products", h.handlePutProduct)
+	h.DELETE("/api/products", h.handleDeleteProduct)
+
 	h.GET("/api/products/:id", h.handleGetProduct)
 	return h
 }
@@ -51,7 +53,7 @@ func (h *ProductHandler) handleGetProduct(w http.ResponseWriter, r *http.Request
 
 type getProductResponse struct {
 	Product *fruit.Product `json:"product,omitempty"`
-	Err     string               `json:"err,omitempty"`
+	Err     string         `json:"err,omitempty"`
 }
 
 // handleGetProducts handles requests to fetch a series of products
@@ -70,7 +72,7 @@ func (h *ProductHandler) handleGetProducts(w http.ResponseWriter, r *http.Reques
 
 type getProductsResponse struct {
 	Products []*fruit.Product `json:"products,omitempty"`
-	Err      string                 `json:"err,omitempty"`
+	Err      string           `json:"err,omitempty"`
 }
 
 // handlePostProduct handles requests to create a new product.
@@ -101,12 +103,12 @@ func (h *ProductHandler) handlePostProduct(w http.ResponseWriter, r *http.Reques
 
 type postProductRequest struct {
 	Product *fruit.Product `json:"product,omitempty"`
-	Token   string               `json:"token,omitempty"`
+	Token   string         `json:"token,omitempty"`
 }
 
 type postProductResponse struct {
 	Product *fruit.Product `json:"product,omitempty"`
-	Err     string               `json:"err,omitempty"`
+	Err     string         `json:"err,omitempty"`
 }
 
 // handlePutProduct handles requests to update a product.
@@ -123,13 +125,14 @@ func (h *ProductHandler) handlePutProduct(w http.ResponseWriter, r *http.Request
 	p.ModTime = time.Time{}
 
 	// Create product.
+	// TODO: Add Token
 	switch err := h.ProductService.UpdateProduct(p.ID, p); err {
 	case nil:
 		encodeJSON(w, &putProductResponse{Product: p}, h.Logger)
 	case fruit.ErrProductRequired, fruit.ErrProductIDRequired:
 		Error(w, err, http.StatusBadRequest, h.Logger)
-	case fruit.ErrProductExists:
-		Error(w, err, http.StatusConflict, h.Logger)
+	case fruit.ErrProductNotFound:
+		Error(w, err, http.StatusNotFound, h.Logger)
 	default:
 		Error(w, err, http.StatusInternalServerError, h.Logger)
 	}
@@ -142,7 +145,38 @@ type putProductRequest struct {
 
 type putProductResponse struct {
 	Product *fruit.Product `json:"product,omitempty"`
-	Err     string               `json:"err,omitempty"`
+	Err     string         `json:"err,omitempty"`
+}
+
+// handleDeleteProduct handles requests to update a product.
+func (h *ProductHandler) handleDeleteProduct(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	// Decode request.
+	var req deleteProductRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		Error(w, ErrInvalidJSON, http.StatusBadRequest, h.Logger)
+		return
+	}
+
+	// Delete product.
+	switch err := h.ProductService.DeleteProduct(req.ID, req.Token); err {
+	case nil:
+		encodeJSON(w, &deleteProductResponse{}, h.Logger)
+	case fruit.ErrProductNotFound:
+		Error(w, err, http.StatusNotFound, h.Logger)
+	case fruit.ErrProductRequired, fruit.ErrProductIDRequired:
+		Error(w, err, http.StatusBadRequest, h.Logger)
+	default:
+		Error(w, err, http.StatusInternalServerError, h.Logger)
+	}
+}
+
+type deleteProductRequest struct {
+	ID    fruit.ProductID `json:"id,omitempty"`
+	Token string          `json:"token"`
+}
+
+type deleteProductResponse struct {
+	Err string `json:"err,omitempty"`
 }
 
 // ProductService represents an HTTP implementation of fruit.ProductService.
@@ -277,5 +311,39 @@ func (s *ProductService) UpdateProduct(id fruit.ProductID, p *fruit.Product) err
 }
 
 func (s *ProductService) DeleteProduct(id fruit.ProductID, token string) error {
-	panic("not implemented")
+	// Validate arguments.
+	if id == "" {
+		return fruit.ErrProductIDRequired
+	}
+
+	u := *s.URL
+	u.Path = "/api/products"
+
+	reqBody, err := json.Marshal(deleteProductRequest{ID: id, Token: token})
+	if err != nil {
+		return err
+	}
+
+	// Create request.
+	req, err := http.NewRequest(http.MethodDelete, u.String(), bytes.NewBuffer(reqBody))
+	if err != nil {
+		return err
+	}
+
+	// Execute request.
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Decode response into JSON.
+	var respBody deleteProductResponse
+	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+		return err
+	} else if respBody.Err != "" {
+		return fruit.Error(respBody.Err)
+	}
+
+	return nil
 }

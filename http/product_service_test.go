@@ -150,7 +150,6 @@ func TestProductService_Create(t *testing.T) {
 	t.Run("ErrProductExists", testProductService_CreateProduct_ErrProductExists)
 	t.Run("ErrProductIDRequired", testProductService_CreateProduct_ErrProductIDRequired)
 	t.Run("ErrInternal", testProductService_Products_ErrInternal)
-	//t.Run("NotFound", testProductService_Products_NotFound)
 }
 
 func testProductService_CreateProduct(t *testing.T) {
@@ -233,8 +232,8 @@ func testProductService_CreateProduct_ErrInternal(t *testing.T) {
 
 func TestProductService_UpdateProduct(t *testing.T) {
 	t.Run("OK", testProductService_UpdateProduct)
-	//t.Run("NotFound", testProductService_UpdateProduct_NotFound)
-	//t.Run("ErrInternal", testProductService_UpdateProduct_ErrInternal)
+	t.Run("NotFound", testProductService_UpdateProduct_ErrProductNotFound)
+	t.Run("ErrInternal", testProductService_UpdateProduct_ErrInternal)
 }
 
 func testProductService_UpdateProduct(t *testing.T) {
@@ -258,5 +257,92 @@ func testProductService_UpdateProduct(t *testing.T) {
 		t.Fatal(err)
 	} else if p.ID != "XXX" {
 		t.Fatalf("product failed to update: %v", p)
+	}
+}
+
+func testProductService_UpdateProduct_ErrProductNotFound(t *testing.T) {
+	s, c := MustOpenServerClient()
+	defer s.Close()
+
+	// Mock server.
+	s.Handler.ProductHandler.ProductService.UpdateProductFn = func(id fruit.ProductID, p *fruit.Product) error {
+		return fruit.ErrProductNotFound
+	}
+
+	// Update product.
+	err := c.ProductService().UpdateProduct("XXX", &fruit.Product{ID: "XXX"})
+	if err != fruit.ErrProductNotFound {
+		t.Fatal(err)
+	}
+}
+
+func testProductService_UpdateProduct_ErrInternal(t *testing.T) {
+	s, c := MustOpenServerClient()
+	defer s.Close()
+
+	// Mock server.
+	s.Handler.ProductHandler.ProductService.UpdateProductFn = func(id fruit.ProductID, p *fruit.Product) error {
+		return errors.New("marker")
+	}
+
+	// Update product.
+	err := c.ProductService().UpdateProduct("XXX", &fruit.Product{ID: "XXX"})
+	if err != fruit.ErrInternal {
+		t.Fatal(err)
+	}
+}
+
+func TestProductService_DeleteProduct(t *testing.T) {
+	// TODO: Add Token unauthorization
+	t.Run("OK", testProductService_DeleteProduct)
+	t.Run("NotFound", testProductService_DeleteProduct_ErrProductNotFound)
+	t.Run("ErrInternal", testProductService_DeleteProduct_ErrInternal)
+}
+
+func testProductService_DeleteProduct(t *testing.T) {
+	s, c := MustOpenServerClient()
+	defer s.Close()
+
+	// Mock server.
+	s.Handler.ProductHandler.ProductService.DeleteProductFn = func(id fruit.ProductID, token string) error {
+		return nil
+	}
+
+	// Delete product.
+	err := c.ProductService().DeleteProduct("XXX", "TOKEN")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func testProductService_DeleteProduct_ErrProductNotFound(t *testing.T) {
+	s, c := MustOpenServerClient()
+	defer s.Close()
+
+	// Mock server.
+	s.Handler.ProductHandler.ProductService.DeleteProductFn = func(id fruit.ProductID, token string) error {
+		return fruit.ErrProductNotFound
+	}
+
+	// Delete product.
+	err := c.ProductService().DeleteProduct("XXX", "TOKEN")
+	if err != fruit.ErrProductNotFound {
+		t.Fatal(err)
+	}
+}
+
+func testProductService_DeleteProduct_ErrInternal(t *testing.T) {
+	s, c := MustOpenServerClient()
+	defer s.Close()
+
+	// Mock server.
+	s.Handler.ProductHandler.ProductService.DeleteProductFn = func(id fruit.ProductID, token string) error {
+		return errors.New("marker")
+	}
+
+	// Delete product.
+	err := c.ProductService().DeleteProduct("XXX", "TOKEN")
+	if err != fruit.ErrInternal {
+		t.Fatal(err)
 	}
 }
