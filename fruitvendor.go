@@ -16,8 +16,11 @@ type Product struct {
 }
 
 // Client creates a connection to the services.
+// TODO: Decide if we really need to use client and not
+// just standalone services.
 type Client interface {
 	ProductService() ProductService
+	UserService() UserService
 }
 
 // ProductService represents a service for managing products
@@ -41,10 +44,10 @@ type Address struct {
 type UserID string
 
 type User struct {
-	ID      UserID  `json:"userID" storm:"id"`
-	Name    string  `json:"name"`
-	Address Address `json:"address"`
-	CardID  string  `json:"card"`
+	ID      UserID   `json:"userID" storm:"id"`
+	Name    string   `json:"name"`
+	Address *Address `json:"address"`
+	CardID  string   `json:"card"`
 }
 
 type UserService interface {
@@ -52,6 +55,7 @@ type UserService interface {
 	Users() ([]*User, error)
 	CreateUser(u *User) error
 	DeleteUser(id UserID) error
+	UpdateUser(id UserID, u *User) error
 }
 
 type TransactionID string

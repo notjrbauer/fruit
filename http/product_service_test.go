@@ -295,7 +295,7 @@ func testProductService_UpdateProduct_ErrInternal(t *testing.T) {
 func TestProductService_DeleteProduct(t *testing.T) {
 	// TODO: Add Token unauthorization
 	t.Run("OK", testProductService_DeleteProduct)
-	t.Run("NotFound", testProductService_DeleteProduct_ErrProductNotFound)
+	t.Run("ErrProductNotFound", testProductService_DeleteProduct_ErrProductNotFound)
 	t.Run("ErrInternal", testProductService_DeleteProduct_ErrInternal)
 }
 

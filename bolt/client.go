@@ -17,6 +17,7 @@ type Client struct {
 
 	// Services
 	productService ProductService
+	userService    UserService
 
 	db *storm.DB
 }
@@ -24,6 +25,7 @@ type Client struct {
 func NewClient() *Client {
 	c := &Client{Now: time.Now}
 	c.productService.client = c
+	c.userService.client = c
 	return c
 }
 
@@ -48,4 +50,8 @@ func (c *Client) Close() error {
 
 func (c *Client) ProductService() fruit.ProductService {
 	return &c.productService
+}
+
+func (c *Client) UserService() fruit.UserService {
+	return &c.userService
 }

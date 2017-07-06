@@ -14,6 +14,14 @@ const (
 	ErrProductIDRequired = Error("product id required")
 )
 
+// User errors.
+const (
+	ErrUserIDRequired = Error("user id required")
+	ErrUserNotFound   = Error("user not found")
+	ErrUserExists     = Error("user already exists")
+	ErrUserRequired   = Error("user required")
+)
+
 // Error represents a fruit error.
 type Error string
 
