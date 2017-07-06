@@ -3,7 +3,7 @@ package internal
 import (
 	"encoding/json"
 
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 func MarshalProduct(p *fruit.Product) ([]byte, error) {

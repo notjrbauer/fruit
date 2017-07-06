@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	fruit "github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 func TestCreateUser(t *testing.T) {

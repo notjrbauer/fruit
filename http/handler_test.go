@@ -1,6 +1,6 @@
 package http_test
 
-import "github.com/notjrbauer/fruitvendor/http"
+import "github.com/notjrbauer/fruit/http"
 
 // Handler represents a test wrapper for http.Handler.
 type Handler struct {

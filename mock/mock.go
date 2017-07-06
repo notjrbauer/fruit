@@ -1,7 +1,7 @@
 package mock
 
 import (
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 type ProductService struct {

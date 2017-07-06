@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/notjrbauer/fruitvendor"
-	"github.com/notjrbauer/fruitvendor/bolt"
+	"github.com/notjrbauer/fruit"
+	"github.com/notjrbauer/fruit/bolt"
 )
 
 func main() {

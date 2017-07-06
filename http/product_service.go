@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 type ProductHandler struct {

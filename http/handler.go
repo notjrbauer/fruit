@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 const ErrInvalidJSON = fruit.Error("invalid json")

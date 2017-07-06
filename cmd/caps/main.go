@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/notjrbauer/fruitvendor/bolt"
-	"github.com/notjrbauer/fruitvendor/http"
+	"github.com/notjrbauer/fruit/bolt"
+	"github.com/notjrbauer/fruit/http"
 )
 
 func main() {

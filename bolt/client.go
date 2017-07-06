@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/asdine/storm"
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 // Client represents a client to the underlying bolt db structure.

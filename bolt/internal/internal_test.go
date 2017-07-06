@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/notjrbauer/fruitvendor"
-	"github.com/notjrbauer/fruitvendor/bolt/internal"
+	"github.com/notjrbauer/fruit"
+	"github.com/notjrbauer/fruit/bolt/internal"
 )
 
 func TestMarshalProduct(t *testing.T) {

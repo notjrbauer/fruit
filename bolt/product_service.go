@@ -3,7 +3,7 @@ package bolt
 import (
 	"time"
 
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 type ProductService struct {

@@ -7,9 +7,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/notjrbauer/fruitvendor"
-	"github.com/notjrbauer/fruitvendor/http"
-	"github.com/notjrbauer/fruitvendor/mock"
+	"github.com/notjrbauer/fruit"
+	"github.com/notjrbauer/fruit/http"
+	"github.com/notjrbauer/fruit/mock"
 )
 
 // ProductHandler represents a test wrapper for http.ProductHandler

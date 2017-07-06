@@ -1,7 +1,7 @@
 package bolt
 
 import (
-	fruit "github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 type UserService struct {

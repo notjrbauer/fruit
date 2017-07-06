@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/notjrbauer/fruitvendor/http"
+	"github.com/notjrbauer/fruit/http"
 )
 
 // Now represents the mocked current time.

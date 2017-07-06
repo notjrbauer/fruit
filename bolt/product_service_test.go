@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/notjrbauer/fruitvendor"
+	"github.com/notjrbauer/fruit"
 )
 
 func TestProductService_CreateProduct(t *testing.T) {
