@@ -28,3 +28,45 @@ type ProductService interface {
 	UpdateProduct(id ProductID, p *Product) error
 	DeleteProduct(id ProductID, token string) error
 }
+
+type Address struct {
+	Line1   string `json:"line1"`
+	Line2   string `json:"line2"`
+	City    string `json:"city"`
+	State   string `json:"state"`
+	ZipCode string `json:"zipCode"`
+	Country string `json:"country"`
+}
+
+type UserID string
+
+type User struct {
+	ID      UserID  `json:"userID" storm:"id"`
+	Name    string  `json:"name"`
+	Address Address `json:"address"`
+	CardID  string  `json:"card"`
+}
+
+type UserService interface {
+	User(id UserID) (*User, error)
+	Users() ([]*User, error)
+	CreateUser(u *User) error
+	DeleteUser(id UserID) error
+}
+
+type TransactionID string
+
+type Transaction struct {
+	ID     TransactionID `json:"transactionID" validate:"nonzero"`
+	UserID UserID        `json:"userID"`
+	Count  int           `json:"count"`
+	Active bool          `json:"active"`
+}
+
+type TransactionService interface {
+	Transaction(id TransactionID) (*Transaction, error)
+	Transactions(id UserID) ([]*Transaction, error)
+	CreateTransaction(t *Transaction) error
+	UpdateTransaction(id TransactionID, t *Transaction) error
+	DeleteTransaction(id TransactionID) error
+}
