@@ -57,7 +57,15 @@ func generateFile(path string, n int) error {
 	for count := 0; count < n; count++ {
 		color := r.Intn(len(colors))
 		id := strconv.Itoa(r.Intn(1000) + count)
+
+		// TODO: Break these into their own functions when all services are defined.
+		// Generate products.
 		if err := c.ProductService().CreateProduct(&fruit.Product{ID: fruit.ProductID(id), Color: colors[color]}); err != nil {
+			return err
+		}
+
+		// Generate Users
+		if err := c.UserService().CreateUser(&fruit.User{ID: fruit.UserID(id), Name: colors[color], CardID: strconv.Itoa(rand.Int())}); err != nil {
 			return err
 		}
 	}
