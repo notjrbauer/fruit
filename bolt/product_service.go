@@ -12,13 +12,6 @@ type ProductService struct {
 
 // Product returns a product by ID.
 func (s *ProductService) Product(id fruit.ProductID) (*fruit.Product, error) {
-	// Start read-only transaction.
-	tx, err := s.client.db.Begin(false)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
 	// Find and unmarshal product.
 	var p fruit.Product
 	products := s.client.db.From("Products")
@@ -56,11 +49,13 @@ func (s *ProductService) CreateProduct(p *fruit.Product) error {
 	defer tx.Rollback()
 
 	// Verify product doesn't already exist.
+	product, err := s.Product(p.ID)
 
-	var product fruit.Product
-	tx.One("ID", p.ID, &product)
+	if err != nil && err.Error() != "not found" {
+		return err
+	}
 
-	if product.ID != "" {
+	if product != nil {
 		return fruit.ErrProductExists
 	}
 
