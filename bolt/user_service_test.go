@@ -78,3 +78,33 @@ func testUserService_CreateUser_ErrUserExists(t *testing.T) {
 		t.Fatal(errors.New("expected error when creating duplicate user"))
 	}
 }
+
+func TestDeleteUser(t *testing.T) {
+	t.Run("OK", testUserService_DeleteUser)
+}
+
+func testUserService_DeleteUser(t *testing.T) {
+	c := MustOpenClient()
+	defer c.Close()
+
+	s := c.UserService()
+
+	user := fruit.User{
+		ID:      "ID",
+		Name:    "NAME",
+		Address: &fruit.Address{},
+		CardID:  "CARDID",
+	}
+
+	if err := s.CreateUser(&user); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DeleteUser(user.ID); err != nil {
+		t.Fatal(err)
+	}
+
+	// User should not exist
+	if _, err := s.User(user.ID); err == nil {
+		t.Fatal(errors.New("expected error when removing user"))
+	}
+}

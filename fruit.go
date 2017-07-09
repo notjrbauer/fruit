@@ -44,10 +44,11 @@ type Address struct {
 type UserID string
 
 type User struct {
-	ID      UserID   `json:"userID" storm:"id"`
-	Name    string   `json:"name"`
-	Address *Address `json:"address"`
-	CardID  string   `json:"card"`
+	ID      UserID    `json:"userID" storm:"id"`
+	Name    string    `json:"name"`
+	Address *Address  `json:"address"`
+	CardID  string    `json:"card"`
+	ModTime time.Time `json:"modTime"`
 }
 
 type UserService interface {
@@ -61,10 +62,11 @@ type UserService interface {
 type TransactionID string
 
 type Transaction struct {
-	ID     TransactionID `json:"transactionID" validate:"nonzero"`
-	UserID UserID        `json:"userID"`
-	Count  int           `json:"count"`
-	Active bool          `json:"active"`
+	ID      TransactionID `json:"transactionID" storm:"id" validate:"nonzero"`
+	UserID  UserID        `json:"userID"`
+	Count   int           `json:"count"`
+	Active  bool          `json:"active"`
+	ModTime time.Time     `json:"modTime"`
 }
 
 type TransactionService interface {

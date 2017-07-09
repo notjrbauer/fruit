@@ -71,7 +71,26 @@ func (s *UserService) CreateUser(u *fruit.User) error {
 
 // DeleteUser removes an existing user.
 func (s *UserService) DeleteUser(id fruit.UserID) error {
-	panic("not implemented")
+	bucket := s.client.db.From("Users")
+
+	// Find user.
+	user, err := s.User(id)
+	if err != nil {
+		return err
+	}
+
+	// Start transaction.
+	tx, err := bucket.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := tx.DeleteStruct(user); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // UpdateUser removes an existing user.
