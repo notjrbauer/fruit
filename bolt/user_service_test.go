@@ -108,3 +108,38 @@ func testUserService_DeleteUser(t *testing.T) {
 		t.Fatal(errors.New("expected error when removing user"))
 	}
 }
+
+func TestUpdateUser(t *testing.T) {
+	t.Run("OK", testUserService_UpdateUser)
+}
+
+func testUserService_UpdateUser(t *testing.T) {
+	c := MustOpenClient()
+	defer c.Close()
+
+	s := c.UserService()
+
+	user := fruit.User{
+		ID:      "ID",
+		Name:    "NAME",
+		Address: &fruit.Address{},
+		CardID:  "CARDID",
+	}
+
+	if err := s.CreateUser(&user); err != nil {
+		t.Fatal(err)
+	}
+
+	user.Name = "UPDATE_NAME"
+	user.CardID = "UPDATE_CARDID"
+	if err := s.UpdateUser(user.ID, &user); err != nil {
+		t.Fatal(err)
+	}
+
+	// User should be updated.
+	if u, err := s.User(user.ID); err != nil {
+		t.Fatal(errors.New("expected error when updating user"))
+	} else if u.Name != "UPDATE_NAME" {
+		t.Fatalf("unexpected product sku: %s", u.Name)
+	}
+}

@@ -1,6 +1,8 @@
 package bolt
 
 import (
+	"time"
+
 	"github.com/notjrbauer/fruit"
 )
 
@@ -95,5 +97,33 @@ func (s *UserService) DeleteUser(id fruit.UserID) error {
 
 // UpdateUser removes an existing user.
 func (s *UserService) UpdateUser(id fruit.UserID, u *fruit.User) error {
-	panic("not implemented")
+	bucket := s.client.db.From("Users")
+
+	// Find user.
+	user, err := s.User(id)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return fruit.ErrUserNotFound
+	}
+
+	// Start transaction.
+	tx, err := bucket.Begin(true)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Apply changes
+	user.Name = u.Name
+	user.CardID = u.CardID
+	user.Address = u.Address
+	user.ModTime = time.Now().UTC()
+
+	if err := tx.Update(u); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
